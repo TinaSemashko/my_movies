@@ -7,7 +7,7 @@ import { MovieData, ReviewsData, RecomendationData, DetailData } from "./types";
 
 import * as S from "./movies.styled";
 
-const Meteo: React.FC = () => {
+const Movies: React.FC = () => {
   const [searchMovie, setSearchMovie] = useState("");
   const [movieData, setMovieData] = useState<MovieData[]>([]);
   const [idMovie, setIdMovie] = useState(0);
@@ -196,4 +196,4 @@ const Meteo: React.FC = () => {
     </S.MainContainer>
   );
 };
-export default Meteo;
+export default Movies;
