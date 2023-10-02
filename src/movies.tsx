@@ -179,6 +179,20 @@ const Meteo: React.FC = () => {
           ))}
         </S.Details>
       </S.ContainerList>
+      <footer>
+        <p className="text-center mt-5">
+          <em>
+            This website was coded by Tina Semashko, and is&nbsp;
+            <a
+              href="https://github.com/TinaSemashko/my_movies"
+              target="_blank"
+              title="github link that project"
+            >
+              open-sourced
+            </a>
+          </em>
+        </p>
+      </footer>
     </S.MainContainer>
   );
 };
