@@ -4,6 +4,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import { APIKey, APIToken } from "./config";
 import axios from "axios";
 import { MovieData, ReviewsData, RecomendationData, DetailData } from "./types";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import { Errors } from "./errors";
 
 import * as S from "./movies.styled";
 
@@ -16,6 +19,9 @@ const Movies: React.FC = () => {
   const [recomendationData, setRecomendationData] = useState<
     RecomendationData[]
   >([]);
+  const [isError, setIsError] = useState(false);
+  const [errorStatus, setErrorStatus] = useState("");
+  const [errorMessage, setIsErrorMessage] = useState("");
 
   //const APIUrl = `https://api.themoviedb.org/3/search/movie?query=${searchMovie}?api_key=${APIKey}`;
   const APIUrl = `https://api.themoviedb.org/3/search/movie?query=${searchMovie}&include_adult=false&language=en-US&page=1`;
@@ -27,6 +33,14 @@ const Movies: React.FC = () => {
     Authorization: `Bearer ${APIToken}`,
   };
 
+  const showError = (status: number, message: string) => {
+    if (status > 400) {
+      setIsError(true);
+      setErrorStatus(Errors(status));
+      setIsErrorMessage(message);
+    } else setIsError(false);
+  };
+
   const fetchGet = async () => {
     await axios
       .get(APIUrl, { headers: headers })
@@ -34,7 +48,7 @@ const Movies: React.FC = () => {
         setMovieData(response.data.results as MovieData[]);
       })
       .catch((err) => {
-        console.error(err);
+        showError(err.response.status, err.response.data.status_message);
       });
   };
   const fetchGetReviews = async () => {
@@ -59,6 +73,7 @@ const Movies: React.FC = () => {
   };
 
   const handleClick = () => {
+    showError(200, "message");
     fetchGet();
   };
 
@@ -154,7 +169,7 @@ const Movies: React.FC = () => {
             {detailData?.reviews.length ? `Reviews:` : ""}
           </Typography>
           {detailData?.reviews.map((item, index) => (
-            <div>
+            <div key={item.id}>
               <Typography variant="h6" color="yellow">
                 {detailData ? `${item?.author}:` : ""}
               </Typography>
@@ -168,7 +183,7 @@ const Movies: React.FC = () => {
             {detailData?.recomendations.length ? `Recomendations:` : ""}
           </Typography>
           {detailData?.recomendations.map((item, index) => (
-            <div>
+            <div key={item.id}>
               <Typography variant="h6" color="red">
                 {detailData ? `${item?.title}:` : ""}
               </Typography>
@@ -178,6 +193,17 @@ const Movies: React.FC = () => {
             </div>
           ))}
         </S.Details>
+        {isError ? (
+          <Alert severity="error">
+            <AlertTitle>Error</AlertTitle>
+            <Typography variant="h6" color="red">
+              Status: {errorStatus}
+            </Typography>
+            <Typography variant="h6">{errorMessage}</Typography>
+          </Alert>
+        ) : (
+          ""
+        )}
       </S.ContainerList>
       <footer>
         <p className="text-center mt-5">
