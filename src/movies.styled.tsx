@@ -10,9 +10,9 @@ export const MainContainer = styled("div")`
 `;
 
 export const ContainerList = styled("div")`
-  display: grid;
-  grid-template-columns: 30% 70%;
-  grid-template-rows: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 `;
 
 export const List = styled("div")`

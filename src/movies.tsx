@@ -22,8 +22,9 @@ const Movies: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const [errorStatus, setErrorStatus] = useState("");
   const [errorMessage, setIsErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [idOpen, setIdOpen] = useState(0);
 
-  //const APIUrl = `https://api.themoviedb.org/3/search/movie?query=${searchMovie}?api_key=${APIKey}`;
   const APIUrl = `https://api.themoviedb.org/3/search/movie?query=${searchMovie}&include_adult=false&language=en-US&page=1`;
   const APIReviews = `https://api.themoviedb.org/3/movie/${idMovie}/reviews?language=en-US&page=1`;
   const APIRecomendation = `https://api.themoviedb.org/3/movie/${idMovie}/recommendations?language=en-US&page=1`;
@@ -34,7 +35,7 @@ const Movies: React.FC = () => {
   };
 
   const showError = (status: number, message: string) => {
-    if (status > 400) {
+    if (status >= 400) {
       setIsError(true);
       setErrorStatus(Errors(status));
       setIsErrorMessage(message);
@@ -85,6 +86,11 @@ const Movies: React.FC = () => {
 
   const showDetails = (event: React.MouseEvent<HTMLTextAreaElement>) => {
     const film_id = Number((event.target as HTMLTextAreaElement).id);
+
+    if (idOpen === film_id) setIsOpen(false);
+    else setIsOpen(true);
+    setIdOpen(film_id);
+
     setIdMovie(movieData[film_id].id);
     fetchGetReviews();
     fetchGetRecomendation();
@@ -111,7 +117,7 @@ const Movies: React.FC = () => {
   return (
     <S.MainContainer>
       <Typography variant="h3" fontFamily="Handlee, cursive" color="yellow">
-        Choisissez une film
+        Choisissez un film
       </Typography>
       <TextField
         id="search"
@@ -119,7 +125,7 @@ const Movies: React.FC = () => {
         label="Search"
         value={searchMovie}
         onChange={handleChange}
-        sx={{ width: 600, input: { color: "red" } }}
+        sx={{ width: "50vw", input: { color: "red" } }}
         InputProps={{
           endAdornment: (
             <InputAdornment
@@ -135,64 +141,75 @@ const Movies: React.FC = () => {
       <S.ContainerList>
         <S.List>
           {movieData.map((item, index) => (
-            <Typography
-              variant="h6"
-              color="secondary"
-              id={`${index}`}
-              key={item.id}
-              onClick={showDetails}
-            >
-              {item.title}
-            </Typography>
+            <div>
+              <Typography
+                variant="h6"
+                color="secondary"
+                id={`${index}`}
+                key={item.id}
+                onClick={showDetails}
+              >
+                {item.title}
+              </Typography>
+              {item.id === detailData?.id && isOpen ? (
+                <S.Details>
+                  <Typography variant="h5" color="primary">
+                    {detailData?.title}
+                  </Typography>
+                  <Typography variant="h5" color="primary">
+                    {detailData
+                      ? `original title: ${detailData?.original_title}`
+                      : ""}
+                  </Typography>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${detailData?.poster_path}`}
+                    alt=""
+                    width="200px"
+                  />
+                  <Typography variant="body1" color="primary">
+                    {detailData
+                      ? `release date: ${detailData?.release_date}`
+                      : ""}
+                  </Typography>
+                  <Typography variant="body1" color="primary">
+                    {detailData?.overview}
+                  </Typography>
+                  <br />
+                  <Typography variant="h5" color="white">
+                    {detailData?.reviews.length ? `Reviews:` : ""}
+                  </Typography>
+                  {detailData?.reviews.map((item, index) => (
+                    <div key={item.id}>
+                      <Typography variant="h6" color="yellow">
+                        {detailData ? `${item?.author}:` : ""}
+                      </Typography>
+                      <Typography variant="body1" color="green">
+                        {detailData ? item?.content : ""}
+                      </Typography>
+                    </div>
+                  ))}
+                  <br />
+                  <Typography variant="h5" color="white">
+                    {detailData?.recomendations.length ? `Recomendations:` : ""}
+                  </Typography>
+                  {detailData?.recomendations.map((item, index) => (
+                    <div key={item.id}>
+                      <Typography variant="h6" color="red">
+                        {detailData ? `${item?.title}:` : ""}
+                      </Typography>
+                      <Typography variant="body1" color="orange">
+                        {detailData ? item?.overview : ""}
+                      </Typography>
+                    </div>
+                  ))}
+                </S.Details>
+              ) : (
+                ""
+              )}
+            </div>
           ))}
         </S.List>
-        <S.Details>
-          <Typography variant="h5" color="primary">
-            {detailData?.title}
-          </Typography>
-          <Typography variant="h5" color="primary">
-            {detailData ? `original title: ${detailData?.original_title}` : ""}
-          </Typography>
-          <img
-            src={`https://image.tmdb.org/t/p/w500${detailData?.poster_path}`}
-            alt=""
-            width="200px"
-          />
-          <Typography variant="body1" color="primary">
-            {detailData ? `release date: ${detailData?.release_date}` : ""}
-          </Typography>
-          <Typography variant="body1" color="primary">
-            {detailData?.overview}
-          </Typography>
-          <br />
-          <Typography variant="h5" color="white">
-            {detailData?.reviews.length ? `Reviews:` : ""}
-          </Typography>
-          {detailData?.reviews.map((item, index) => (
-            <div key={item.id}>
-              <Typography variant="h6" color="yellow">
-                {detailData ? `${item?.author}:` : ""}
-              </Typography>
-              <Typography variant="body1" color="green">
-                {detailData ? item?.content : ""}
-              </Typography>
-            </div>
-          ))}
-          <br />
-          <Typography variant="h5" color="white">
-            {detailData?.recomendations.length ? `Recomendations:` : ""}
-          </Typography>
-          {detailData?.recomendations.map((item, index) => (
-            <div key={item.id}>
-              <Typography variant="h6" color="red">
-                {detailData ? `${item?.title}:` : ""}
-              </Typography>
-              <Typography variant="body1" color="orange">
-                {detailData ? item?.overview : ""}
-              </Typography>
-            </div>
-          ))}
-        </S.Details>
+
         {isError ? (
           <Alert severity="error">
             <AlertTitle>Error</AlertTitle>
